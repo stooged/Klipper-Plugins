@@ -1,11 +1,14 @@
-#Klipper Plugins
+# Klipper Plugins
 
 these scripts are built to work with my printers and will probably require changes to suit your specific setup
 
 
 
 
-##emailer.py
+
+
+
+## emailer.py
 
 emailer.py is used to send email notifications on print completion and error using smtp
 
@@ -39,7 +42,10 @@ smtp_port: 587
 
 
 
-##enclosure.py
+
+
+
+## enclosure.py
 
 
 enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off
