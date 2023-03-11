@@ -15,7 +15,7 @@ emailer.py is used to send email notifications on print completion and error usi
 upload the emailer.py file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
 
 
-to use it you must use the ssh console and install the following into the klippy environment using the following commands
+to use it you must use the ssh console and install these packages into the klippy environment using the following command
 
 ```
 
@@ -75,7 +75,7 @@ sudo python3 /home/pi/printer_data/config/enclosure.py &
 
 enable SPI in the `raspi-config` for the lcd display
 
-install the following packages
+install the these packages using the following command
 
 ```
 
