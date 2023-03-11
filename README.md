@@ -12,7 +12,7 @@ these scripts are built to work with my printers and will probably require chang
 
 emailer.py is used to send email notifications on print completion and error using smtp
 
-upload the emailer.py file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
+upload the `emailer.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
 
 
 to use it you must use the ssh console and install these packages into the klippy environment using the following command
@@ -23,7 +23,7 @@ to use it you must use the ssh console and install these packages into the klipp
 
 ```
 
-you also need to add the following lines to your printer.cfg and edit them to suit your needs
+you also need to add the following lines to your `printer.cfg` and edit them to suit your needs
 
 
 ```
@@ -48,12 +48,12 @@ smtp_port: 587
 ## enclosure.py
 
 
-enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off
-it also displays the temps on a lcd screen along with print progress in % if printing
+enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off,
+it also displays the temperature on a lcd screen along with print progress in % if printing
 
-to use it upload enclosure.py and enclosure.cfg to the config files section in mainsail/fluid
+to use it upload `enclosure.py` and `enclosure.cfg` to the config files section in mainsail/fluid
 
-edit the enclosure.cfg to match your gpio and sensor type etc
+edit the `enclosure.cfg` to match your gpio and sensor type etc
 
 
 then use ssh to do the following
