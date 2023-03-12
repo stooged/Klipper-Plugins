@@ -16,9 +16,7 @@ class EMAILER:
 
 
     def __init__(self, config):
-        self.name = config.get_name()
         self.printer = config.get_printer()
-        self.gcode = self.printer.lookup_object('gcode')
         self.print_stats = self.printer.load_object(config, 'print_stats')
         self.printing = False
         self.send_email_notifications = config.getboolean("send_email_notifications")

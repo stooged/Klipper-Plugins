@@ -16,7 +16,6 @@ except ImportError:
 class ENCLOSURE:
 
     def __init__(self, config):
-        self.name = config.get_name()
         self.printer = config.get_printer()
         self.reactor = self.printer.get_reactor()
         self.print_stats = self.printer.load_object(config, 'print_stats')
