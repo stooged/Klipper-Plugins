@@ -1,6 +1,8 @@
 # Non Integrated Scripts
 
-Note: these scripts are built to work with my printers and will probably require changes to suit your specific setup.
+these scripts are built to work with my printers and will probably require changes to suit your specific setup.
+my printers run mainsail os/klipper on raspberry pi 4 using dht11 sensors with 20x4 i2c lcd screens.
+
 
 this collection of scripts do not run within the klippy environment, they run on the host and use websockets to communicate with mainsail/fluid to retrive the data required to operate.
 

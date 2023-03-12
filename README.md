@@ -1,7 +1,7 @@
 # Klipper Plugins
 
-these scripts are built to work with my printers and will probably require changes to suit your specific setup
-
+these scripts are built to work with my printers and will probably require changes to suit your specific setup.
+my printers run mainsail os/klipper on raspberry pi 4 using dht11 sensors with 20x4 i2c lcd screens.
 
 
 
@@ -10,12 +10,12 @@ these scripts are built to work with my printers and will probably require chang
 
 ## emailer.py
 
-emailer.py is used to send email notifications on print completion and error using smtp
+emailer.py is used to send email notifications on print completion and error using smtp.
 
-upload the `emailer.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
+upload the `emailer.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install.
 
 
-to use it you must use the ssh console and install these packages into the klippy environment using the following command
+to use it you must use the ssh console and install these packages into the klippy environment using the following command.
 
 ```
 
@@ -23,7 +23,7 @@ to use it you must use the ssh console and install these packages into the klipp
 
 ```
 
-you also need to add the following lines to your `printer.cfg` and edit them to suit your needs
+you also need to add the following lines to your `printer.cfg` and edit them to suit your needs.
 
 
 ```
@@ -49,13 +49,14 @@ smtp_port: 587
 
 
 enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off,
-it also displays the temperature on a lcd screen along with print progress in % if printing
+it also displays the temperature on a lcd screen along with print progress in % if printing.
+it is currently set to only run the fan while printing regardless of the temperature but you can change this in the code if you wish.
 
 
-upload the `enclosure.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
+upload the `enclosure.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install.
 
 
-to use it you must use the ssh console and install these packages into the klippy environment using the following command
+to use it you must use the ssh console and install these packages into the klippy environment using the following command.
 
 
 ```
@@ -68,7 +69,7 @@ and enable i2c in the `raspi-config` for the lcd display.
 
 
 
-you also need to add the following lines to your `printer.cfg` and edit them to suit your needs
+you also need to add the following lines to your `printer.cfg` and edit them to suit your needs.
 
 
 ```
