@@ -1,6 +1,6 @@
 
 import logging
-from . import print_stats, display_status
+from . import print_stats, virtual_sdcard
 import sys
 import time
 import datetime
@@ -19,7 +19,7 @@ class ENCLOSURE:
         self.printer = config.get_printer()
         self.reactor = self.printer.get_reactor()
         self.print_stats = self.printer.load_object(config, 'print_stats')
-        self.display_status = self.printer.load_object(config, 'display_status')
+        self.virtual_sdcard = self.printer.load_object(config, 'virtual_sdcard')
         self.printing = False
         self.lcd_display = None
         self.fan_relay_gpio = config.getint("fan_relay_gpio")
@@ -67,7 +67,7 @@ class ENCLOSURE:
                     self.lcd_display.write_string(self.machine_name)
                     self.lcd_display.cursor_pos = (1, 0)
                     self.lcd_display.write_string("   Loading...   ")
-        except Exception as e:
+        except Exception:
             self.lcd_display = None
             pass
 
@@ -76,6 +76,7 @@ class ENCLOSURE:
         def run(*args):
             while True:
                 time.sleep(3)
+    
                 try:
                     if self.lcd_display is not None:
                         temperature = self.dht_sensor.temperature
@@ -88,9 +89,9 @@ class ENCLOSURE:
                             if self.is_20x4_lcd:
                                 enctemp = str(int(temperature)) + "C"
                                 enchum = str(int(humidity)) + "%"
-                                if self.printing == True:
-                                    self.dstatus = self.display_status.get_status(self.reactor.monotonic())
-                                    prgss = str(int(self.dstatus['progress'])) + "%"                                    
+                                if self.printing == True and self.virtual_sdcard != None:
+                                    self.cstats = self.virtual_sdcard.get_status(self.reactor.monotonic()) 
+                                    prgss = str((int(self.cstats['file_position']) / int(self.cstats['file_size'])) * 100) + "%"                                    
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string("Printing: ")
                                     self.lcd_display.cursor_pos = (0, 10)
@@ -136,9 +137,9 @@ class ENCLOSURE:
                                 self.lcd_display.cursor_pos = (1, 0)
                                 self.lcd_display.write_string("Humidity: %d %% " % int(humidity))
 
-                except RuntimeError as e:
+                except RuntimeError:
                     continue
-                except Exception as e:
+                except Exception:
                     continue  
         thread.start_new_thread(run, ())
 
