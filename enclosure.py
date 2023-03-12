@@ -18,9 +18,7 @@ class ENCLOSURE:
     def __init__(self, config):
         self.name = config.get_name()
         self.printer = config.get_printer()
-        self.gcode = self.printer.lookup_object('gcode')
         self.reactor = self.printer.get_reactor()
-        self.eventtime = self.reactor.monotonic()
         self.print_stats = self.printer.load_object(config, 'print_stats')
         self.display_status = self.printer.load_object(config, 'display_status')
         self.printing = False
@@ -93,7 +91,7 @@ class ENCLOSURE:
                                 enchum = str(int(humidity)) + "%"
                                 if self.printing == True:
                                     self.dstatus = self.display_status.get_status(self.reactor.monotonic())
-                                    prgss = str(self.dstatus['progress']) + "%"                                    
+                                    prgss = str(int(self.dstatus['progress'])) + "%"                                    
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string("Printing: ")
                                     self.lcd_display.cursor_pos = (0, 10)
