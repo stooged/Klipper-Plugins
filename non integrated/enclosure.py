@@ -236,9 +236,7 @@ while True:
                     lcd_display.write_string("Humidity: %d %% " % int(humidity))
 
     except RuntimeError as e:
-        print(str(e))
         continue
     except Exception as e:
-        print(str(e))
         continue
     
