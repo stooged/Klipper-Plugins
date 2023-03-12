@@ -64,6 +64,9 @@ to use it you must use the ssh console and install these packages into the klipp
 
 ```
 
+and enable i2c in the `raspi-config` for the lcd display.
+
+
 
 you also need to add the following lines to your `printer.cfg` and edit them to suit your needs
 
@@ -79,3 +82,6 @@ temp_on: 26            ##-----temperature in °C to turn fan on
 temp_off: 20           ##-----temperature in °C to turn fan off
 
 ```
+
+
+
