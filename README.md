@@ -31,7 +31,7 @@ you also need to add the following lines to your `printer.cfg` and edit them to 
 [emailer]
 machine_name: Printer
 send_email_notifications: True
-send_image: False  ##-----if you have a webcam you can set this to True
+send_image: False      ##-----if you have a webcam you can set this to True
 sender_email: email@email.com
 sender_password: password
 receiver_email: email@email.com
@@ -51,36 +51,31 @@ smtp_port: 587
 enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off,
 it also displays the temperature on a lcd screen along with print progress in % if printing
 
-to use it upload `enclosure.py` and `enclosure.cfg` to the config files section in mainsail/fluid
 
-edit the `enclosure.cfg` to match your gpio and sensor type etc
-
-
-then use ssh to do the following
+upload the `enclosure.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install
 
 
-edit  "/etc/rc.local"
+to use it you must use the ssh console and install these packages into the klippy environment using the following command
 
-```
-sudo nano /etc/rc.local
 
 ```
 
-and add
-
-```
-sudo python3 /home/pi/printer_data/config/enclosure.py &
+~/klippy-env/bin/pip3 install adafruit-circuitpython-dht RPi.GPIO RPLCD smbus
 
 ```
 
-enable SPI in the `raspi-config` for the lcd display
 
-install the these packages using the following command
+you also need to add the following lines to your `printer.cfg` and edit them to suit your needs
 
-```
-
-sudo pip3 install Adafruit_DHT RPi.GPIO RPLCD smbus
 
 ```
+[enclosure]
+machine_name: Printer   
+fan_relay_gpio: 17     ##-----gpio for fan relay to switch fan on and off
+dht_sensor_gpio: 4     ##-----gpio for dht sensor
+dht_sensor_type: 11    ##-----dht sensor type, 11, 21, 22
+is_20x4_lcd: True      ##-----lcd type if set to false a 16x2 lcd will be used
+temp_on: 26            ##-----temperature in °C to turn fan on
+temp_off: 20           ##-----temperature in °C to turn fan off
 
-reboot and it should load on start up
+```
