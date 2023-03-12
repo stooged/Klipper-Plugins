@@ -90,14 +90,14 @@ class ENCLOSURE:
                                 enctemp = str(int(temperature)) + "C"
                                 enchum = str(int(humidity)) + "%"
                                 if self.printing == True and self.virtual_sdcard != None:
-                                    self.cstats = self.virtual_sdcard.get_status(self.reactor.monotonic()) 
-                                    prgss = str((int(self.cstats['file_position']) / int(self.cstats['file_size'])) * 100) + "%"                                    
+                                    cstats = self.virtual_sdcard.get_status(self.reactor.monotonic()) 
+                                    progress = str(int((int(cstats['file_position']) / int(cstats['file_size'])) * 100)) + "%"
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string("Printing: ")
                                     self.lcd_display.cursor_pos = (0, 10)
-                                    self.lcd_display.write_string(chr(32) * (10 - len(prgss)))
+                                    self.lcd_display.write_string(chr(32) * (10 - len(progress)))
                                     self.lcd_display.cursor_pos = (0, 10)
-                                    self.lcd_display.write_string(prgss)
+                                    self.lcd_display.write_string(progress)
                                     self.lcd_display.cursor_pos = (1, 0)
                                     self.lcd_display.write_string("Enclosure Temp:")
                                     self.lcd_display.cursor_pos = (1, 15)
