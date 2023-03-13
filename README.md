@@ -86,3 +86,29 @@ temp_off: 20           ##-----temperature in °C to turn fan off
 
 
 
+
+
+## generate_report.py
+
+generate_report.py is used to generate the frequency response report image from an accelerometer test and saves it to your machine config directory 
+for viewing in the webbrowser, this just saves you having to use ssh to generate the images. 
+
+upload the `generate_report.py` file to `/home/pi/klipper/klippy/extras/` or the klippy/extras directory within your klipper install.
+
+then you can add the following macros to your printer.cfg to generate the images.
+
+
+```
+[generate_report]
+
+[gcode_macro Create_Y_Report]
+gcode:
+   CREATE_REPORT AXIS=Y
+
+[gcode_macro Create_X_Report]
+gcode:
+   CREATE_REPORT AXIS=X
+
+```
+
+i also have a few other macros for testing with an accelerometer here <a href=https://github.com/stooged/Config-For-Klipper/blob/main/adxl.cfg>adxl.cfg</a>
