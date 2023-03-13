@@ -1,9 +1,6 @@
-
-import logging
+# enclosure.py -- https://github.com/stooged/Klipper-Plugins/blob/main/enclosure.py
 from . import print_stats, virtual_sdcard
-import sys
 import time
-import datetime
 import adafruit_dht           
 import RPi.GPIO as GPIO        
 from RPLCD.i2c import CharLCD 
@@ -17,7 +14,6 @@ class ENCLOSURE:
 
     def __init__(self, config):
         self.printer = config.get_printer()
-        self.reactor = self.printer.get_reactor()
         self.print_stats = self.printer.load_object(config, 'print_stats')
         self.virtual_sdcard = self.printer.load_object(config, 'virtual_sdcard')
         self.printing = False
@@ -35,19 +31,26 @@ class ENCLOSURE:
         self.printer.register_event_handler('idle_timeout:ready', self.handle_not_printing)
         self.printer.register_event_handler('idle_timeout:idle', self.handle_not_printing)
         
-        if self.dht_sensor_type == "21":
-            self.dht_sensor = adafruit_dht.DHT21(self.dht_sensor_gpio)
-        elif self.dht_sensor_type == "22":
-            self.dht_sensor = adafruit_dht.DHT22(self.dht_sensor_gpio)
-        else:
-            self.dht_sensor = adafruit_dht.DHT11(self.dht_sensor_gpio)
-
-        GPIO.setwarnings(False)
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.fan_relay_gpio, GPIO.OUT)
+        try:
+            if self.dht_sensor_type == "21":
+                self.dht_sensor = adafruit_dht.DHT21(self.dht_sensor_gpio)
+            elif self.dht_sensor_type == "22":
+                self.dht_sensor = adafruit_dht.DHT22(self.dht_sensor_gpio)
+            else:
+                self.dht_sensor = adafruit_dht.DHT11(self.dht_sensor_gpio)
+        except Exception:
+            self.dht_sensor = None
+            pass
 
         try:
-            if self.is_20x4_lcd:
+            GPIO.setwarnings(False)
+            GPIO.setmode(GPIO.BCM)
+            GPIO.setup(self.fan_relay_gpio, GPIO.OUT)
+        except Exception:
+            pass
+
+        try:
+            if self.is_20x4_lcd == True:
                 self.lcd_display = CharLCD(i2c_expander="PCF8574", address=0x27, cols=20, rows=4, backlight_enabled=True, charmap="A00")
                 if self.lcd_display is not None:
                     self.lcd_display._set_cursor_mode("hide")
@@ -76,22 +79,21 @@ class ENCLOSURE:
         def run(*args):
             while True:
                 time.sleep(3)
-    
                 try:
-                    if self.lcd_display is not None:
+                    if self.dht_sensor != None:
                         temperature = self.dht_sensor.temperature
-                        humidity = self.dht_sensor.humidity
+                        humidity = self.dht_sensor.humidity 
                         if humidity != None and temperature != None: 
                             if int(temperature) >= int(self.temp_on) and self.printing == True:
                                 GPIO.output(self.fan_relay_gpio, GPIO.HIGH)
                             elif int(temperature) <= int(self.temp_off) or self.printing == False:
                                 GPIO.output(self.fan_relay_gpio, GPIO.LOW)
-                            if self.is_20x4_lcd:
+                                
+                            if self.is_20x4_lcd == True and self.lcd_display != None:
                                 enctemp = str(int(temperature)) + "C"
                                 enchum = str(int(humidity)) + "%"
                                 if self.printing == True and self.virtual_sdcard != None:
-                                    cstats = self.virtual_sdcard.get_status(self.reactor.monotonic()) 
-                                    progress = str(int((int(cstats['file_position']) / int(cstats['file_size'])) * 100)) + "%"
+                                    progress = str(int(self.virtual_sdcard.progress() * 100)) + "%"
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string("Printing: ")
                                     self.lcd_display.cursor_pos = (0, 10)
@@ -130,8 +132,7 @@ class ENCLOSURE:
                                     self.lcd_display.cursor_pos = (3, 0)
                                     self.lcd_display.write_string(chr(32) * 20)
 
-
-                            elif temperature != None and humidity != None:
+                            elif self.lcd_display != None:
                                 self.lcd_display.cursor_pos = (0, 0)
                                 self.lcd_display.write_string("Temp: %d C   " % int(temperature))
                                 self.lcd_display.cursor_pos = (1, 0)
@@ -144,12 +145,10 @@ class ENCLOSURE:
         thread.start_new_thread(run, ())
 
 
-
     def handle_printing(self, print_time):
         self.pstatus = self.print_stats.get_status(print_time)
         if self.pstatus['state'] == "printing":
             self.printing = True
-
 
     def handle_not_printing(self, print_time):
         self.pstatus = self.print_stats.get_status(print_time)
@@ -158,17 +157,14 @@ class ENCLOSURE:
         elif self.pstatus['state'] == "error":
             self.printing = False
 
-
     def handle_ready(self):
         self.run_lcd_display()
-
 
     def handle_disconnect(self):
         if self.lcd_display is not None:
             self.lcd_display.close(clear=True)
             self.lcd_display = None
             self.dht_sensor.exit()
-
 
 
 def load_config(config):

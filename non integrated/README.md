@@ -8,6 +8,46 @@ this collection of scripts do not run within the klippy environment, they run on
 
 
 
+## emailer.py
+
+emailer.py is used to send email notifications on print completion and error using smtp.
+
+to use it upload `emailer.py` and `emailer.cfg` to the config files section in mainsail/fluid.
+
+edit the `emailer.cfg` and add your email and smtp settings.
+
+
+then use ssh to do the following.
+
+
+edit  "/etc/rc.local"
+
+```
+sudo nano /etc/rc.local
+
+```
+
+and add.
+
+```
+sudo python3 /home/pi/printer_data/config/emailer.py &
+
+```
+
+install the these packages using the following command.
+
+```
+
+sudo pip3 install requests Pillow
+
+```
+
+reboot and it should load on start up.
+
+
+
+
+
 
 
 ## enclosure.py
@@ -49,3 +89,11 @@ sudo pip3 install adafruit-circuitpython-dht RPi.GPIO RPLCD smbus
 ```
 
 reboot and it should load on start up.
+
+
+
+
+
+
+
+

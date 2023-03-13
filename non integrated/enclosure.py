@@ -1,8 +1,6 @@
 #!/usr/bin/python
-
-import sys
+# enclosure.py -- https://github.com/stooged/Klipper-Plugins/blob/main/non%20integrated/enclosure.py
 import time
-import datetime
 import adafruit_dht            #  adafruit-circuitpython-dht 
 import RPi.GPIO as GPIO        #  RPi.GPIO
 from RPLCD.i2c import CharLCD  #  RPLCD
@@ -16,11 +14,9 @@ except ImportError:
     import _thread as thread
 
 
-
 printing = False
 progress = 0
 lcd_display = None
-gfilename = None
 
 
 cfg_file = Path("/home/pi/printer_data/config/enclosure.cfg")
@@ -39,21 +35,36 @@ if cfg_file.is_file():
 else:                         #hard codeed values used if enclosure.cfg is missing
     fan_relay_gpio = 17                  # gpio used for fan relay
     dht_sensor_gpio = 4                  # gpio used for dht sensor
-    dht_sensor_type = 11                 # dht sensor type   11, 12, 21, 22
+    dht_sensor_type = 11                 # dht sensor type 11, 21, 22
     is_20x4_lcd = True                   # define if lcd is 20x4, if False 16x2 is used
     temp_on = 26                         # temperature in °C to turn extraction fan on
     temp_off = 20                        # temperature in °C to turn extraction fan off
     machine_name = "Printer"             # printer name used for display
 
 
-dht_sensor = adafruit_dht.DHT11(self.dht_sensor_gpio)
-GPIO.setwarnings(False)
-GPIO.setmode(GPIO.BCM)
-GPIO.setup(fan_relay_gpio, GPIO.OUT)
+
+try:
+    if dht_sensor_type == "21":
+        dht_sensor = adafruit_dht.DHT21(dht_sensor_gpio)
+    elif dht_sensor_type == "22":
+        dht_sensor = adafruit_dht.DHT22(dht_sensor_gpio)
+    else:
+        dht_sensor = adafruit_dht.DHT11(dht_sensor_gpio)
+except Exception:
+    dht_sensor = None
+    pass
 
 
 try:
-    if is_20x4_lcd:
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BCM)
+    GPIO.setup(fan_relay_gpio, GPIO.OUT)
+except Exception:
+    pass
+
+
+try:
+    if is_20x4_lcd == True:
         lcd_display = CharLCD(i2c_expander="PCF8574", address=0x27, cols=20, rows=4, backlight_enabled=True, charmap="A00")
         if lcd_display is not None:
             lcd_display.clear()
@@ -71,7 +82,7 @@ try:
             lcd_display.write_string(machine_name)
             lcd_display.cursor_pos = (1, 0)
             lcd_display.write_string("   Loading...   ")
-except Exception as e:
+except Exception:
     lcd_display = None
     pass
 
@@ -82,9 +93,8 @@ def subscribe():
         "method": "printer.objects.subscribe",
         "params": {
             "objects": {
-                "print_stats": ["filename", "state"],
-                "configfile": ["config"],
-                "display_status": ["progress"],
+                "print_stats": ["state"],
+                "display_status": ["progress"]
             }
         },
         "id": "8337"
@@ -93,35 +103,24 @@ def subscribe():
 
 def parse_json(json_obj, message):
     global printing
-    global machine_name
-    global gfilename
     global progress
-
     if "print_stats" in json_obj:
-        print_stats = json_obj["print_stats"]
-        if "filename" in print_stats:
-            gfilename = print_stats["filename"]  
+        print_stats = json_obj["print_stats"] 
         if "state" in print_stats:
             state = print_stats["state"]
             if state == "printing" and printing == False:
                 printing = True
                 progress = 0
-            if state == "complete" or state == "error":
+            if state == "complete" or state == "error" or state == "cancelled":
                 printing = False
-                progress = 0
-            if state == "cancelled":
-                printing = False
-                progress = 0        
+                progress = 0    
     if "display_status" in json_obj and printing == True:
         json_prog1 = json_obj["display_status"]["progress"]
         json_prog = json_prog1*100
         progress = int(json_prog)
 
 
-
-
 def on_message(ws, message):
-   
     if "notify_klippy_ready" in message:
         ws.send(json.dumps(subscribe()))
     if "Klipper state: Ready" in message:
@@ -129,14 +128,9 @@ def on_message(ws, message):
     if "jsonrpc" in message:
         python_json_obj = json.loads(message)
         if "result" in python_json_obj and "status" in python_json_obj["result"]:
-             parse_json(python_json_obj["result"]["status"], message)
+            parse_json(python_json_obj["result"]["status"], message)
         if "method" in python_json_obj and python_json_obj["method"] == "notify_status_update":
-             parse_json(python_json_obj["params"][0], message)
-        if "result" in python_json_obj and "value" in python_json_obj["result"]:    
-             parse_json(python_json_obj["result"]["value"], message)
-             
-             
-            
+            parse_json(python_json_obj["params"][0], message)
 
 def on_error(ws, error):
     print("Error: " + str(error))
@@ -169,26 +163,21 @@ connect_websocket()
 
 
 while True:
-
     try:
         time.sleep(3)
-        if lcd_display is not None:
-
+        if dht_sensor != None:
             temperature = dht_sensor.temperature
             humidity = dht_sensor.humidity
-            
             if humidity != None and temperature != None:
                 if int(temperature) >= int(temp_on) and printing == True:
                     GPIO.output(fan_relay_gpio, GPIO.HIGH)
                 elif int(temperature) <= int(temp_off) or printing == False:
-                    GPIO.output(fan_relay_gpio, GPIO.LOW)
+                    GPIO.output(fan_relay_gpio, GPIO.LOW) 
                     
-                if is_20x4_lcd:
-                
+                if is_20x4_lcd == True and lcd_display != None:
                     enctemp = str(int(temperature)) + "C"
                     enchum = str(int(humidity)) + "%"
                     prgss = str(int(progress)) + "%"
-
                     if printing == True:
                         lcd_display.cursor_pos = (0, 0)
                         lcd_display.write_string("Printing: ")
@@ -229,14 +218,14 @@ while True:
                         lcd_display.write_string(chr(32) * 20)
 
 
-                elif temperature != None and humidity != None:
+                elif lcd_display != None:
                     lcd_display.cursor_pos = (0, 0)
                     lcd_display.write_string("Temp: %d C   " % int(temperature))
                     lcd_display.cursor_pos = (1, 0)
                     lcd_display.write_string("Humidity: %d %% " % int(humidity))
 
-    except RuntimeError as e:
+    except RuntimeError:
         continue
-    except Exception as e:
+    except Exception:
         continue
     
