@@ -8,7 +8,7 @@ my printers run mainsail os/klipper on raspberry pi 4 using dht11 sensors with 2
 
 
 
-## emailer.py
+## <a href=https://github.com/stooged/Klipper-Plugins/blob/main/emailer.py>emailer.py</a>
 
 emailer.py is used to send email notifications on print completion and error using smtp.
 
@@ -45,7 +45,7 @@ smtp_port: 587
 
 
 
-## enclosure.py
+## <a href=https://github.com/stooged/Klipper-Plugins/blob/main/enclosure.py>enclosure.py</a>
 
 
 enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off,
@@ -88,7 +88,7 @@ temp_off: 20           ##-----temperature in °C to turn fan off
 
 
 
-## generate_report.py
+## <a href=https://github.com/stooged/Klipper-Plugins/blob/main/generate_report.py>generate_report.py</a>
 
 generate_report.py is used to generate the frequency response report image from an accelerometer test and saves it to your machine config directory 
 for viewing in the webbrowser, this just saves you having to use ssh to generate the images. 

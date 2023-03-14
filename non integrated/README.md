@@ -8,7 +8,7 @@ this collection of scripts do not run within the klippy environment, they run on
 
 
 
-## emailer.py
+## <a href=https://github.com/stooged/Klipper-Plugins/blob/main/non%20integrated/emailer.py>emailer.py</a>
 
 emailer.py is used to send email notifications on print completion and error using smtp.
 
@@ -50,7 +50,7 @@ reboot and it should load on start up.
 
 
 
-## enclosure.py
+## <a href=https://github.com/stooged/Klipper-Plugins/blob/main/non%20integrated/enclosure.py>enclosure.py</a>
 
 
 enclosure.py is used to control the temperature of the printer enclosure by reading a dht sensor, at set temps it will switch the extraction fan on or off,
