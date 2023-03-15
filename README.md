@@ -84,7 +84,7 @@ temp_off: 20           ##-----temperature in °C to turn fan off
 
 ```
 
-
+<a href=https://github.com/stooged/Klipper-Plugins/blob/main/image/enclosure.png>wiring example</a>
 
 
 
