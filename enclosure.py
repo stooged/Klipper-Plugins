@@ -1,5 +1,5 @@
 # enclosure.py -- https://github.com/stooged/Klipper-Plugins/blob/main/enclosure.py
-from . import print_stats, virtual_sdcard
+from . import print_stats, virtual_sdcard, gcode_move, display_status
 import time
 import adafruit_dht           
 import RPi.GPIO as GPIO        
@@ -14,8 +14,11 @@ class ENCLOSURE:
 
     def __init__(self, config):
         self.printer = config.get_printer()
+        self.reactor = self.printer.get_reactor()
         self.print_stats = self.printer.load_object(config, 'print_stats')
         self.virtual_sdcard = self.printer.load_object(config, 'virtual_sdcard')
+        self.gcode_move = self.printer.load_object(config, 'gcode_move')
+        self.display_status = self.printer.load_object(config, 'display_status')
         self.printing = False
         self.lcd_display = None
         self.fan_relay_gpio = config.getint("fan_relay_gpio")
@@ -112,8 +115,26 @@ class ENCLOSURE:
                                     self.lcd_display.write_string(chr(32) * (5 - len(enchum)))
                                     self.lcd_display.cursor_pos = (2, 20 - len(enchum))
                                     self.lcd_display.write_string(enchum)
+                                    p_status = self.print_stats.get_status(self.reactor.monotonic())
+                                    g_status = self.gcode_move.get_status(self.reactor.monotonic())
+                                    d_status = self.display_status.get_status(self.reactor.monotonic())
+                                    duration = p_status['print_duration']
+                                    prog =  d_status['progress']
+                                    spf = g_status['speed_factor']
+                                    total = duration / prog
+                                    seconds = int((total - duration) / spf)
+                                    hours = seconds // (60*60)
+                                    seconds %= (60*60)
+                                    minutes = seconds // 60
+                                    seconds %= 60
+                                    left = "%02i:%02i:%02i" % (hours, minutes, seconds)
                                     self.lcd_display.cursor_pos = (3, 0)
-                                    self.lcd_display.write_string(chr(32) * 20)
+                                    self.lcd_display.write_string("Remaining: ")
+                                    self.lcd_display.cursor_pos = (3, 11)
+                                    self.lcd_display.write_string(chr(32) * (9 - len(left)))
+                                    self.lcd_display.cursor_pos = (3, 20 - len(left))
+                                    self.lcd_display.write_string(left)
+                                    
                                 else:
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string(chr(32) * 20)
