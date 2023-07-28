@@ -1,5 +1,5 @@
 # enclosure.py -- https://github.com/stooged/Klipper-Plugins/blob/main/enclosure.py
-
+from . import print_stats, virtual_sdcard
 import time
 import adafruit_dht           
 import RPi.GPIO as GPIO        
@@ -14,11 +14,8 @@ class ENCLOSURE:
 
     def __init__(self, config):
         self.printer = config.get_printer()
-        self.reactor = self.printer.get_reactor()
         self.print_stats = self.printer.load_object(config, 'print_stats')
         self.virtual_sdcard = self.printer.load_object(config, 'virtual_sdcard')
-        self.gcode_move = self.printer.load_object(config, 'gcode_move')
-        self.display_status = self.printer.load_object(config, 'display_status')
         self.printing = False
         self.lcd_display = None
         self.fan_relay_gpio = config.getint("fan_relay_gpio")
@@ -33,8 +30,7 @@ class ENCLOSURE:
         self.printer.register_event_handler('idle_timeout:printing', self.handle_printing)
         self.printer.register_event_handler('idle_timeout:ready', self.handle_not_printing)
         self.printer.register_event_handler('idle_timeout:idle', self.handle_not_printing)
-
-
+        
         try:
             if self.dht_sensor_type == "21":
                 self.dht_sensor = adafruit_dht.DHT21(self.dht_sensor_gpio)
@@ -42,7 +38,7 @@ class ENCLOSURE:
                 self.dht_sensor = adafruit_dht.DHT22(self.dht_sensor_gpio)
             else:
                 self.dht_sensor = adafruit_dht.DHT11(self.dht_sensor_gpio)
-        except:
+        except Exception:
             self.dht_sensor = None
             pass
 
@@ -50,7 +46,7 @@ class ENCLOSURE:
             GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.fan_relay_gpio, GPIO.OUT)
-        except:
+        except Exception:
             pass
 
         try:
@@ -74,7 +70,7 @@ class ENCLOSURE:
                     self.lcd_display.write_string(self.machine_name)
                     self.lcd_display.cursor_pos = (1, 0)
                     self.lcd_display.write_string("   Loading...   ")
-        except:
+        except Exception:
             self.lcd_display = None
             pass
 
@@ -116,28 +112,8 @@ class ENCLOSURE:
                                     self.lcd_display.write_string(chr(32) * (5 - len(enchum)))
                                     self.lcd_display.cursor_pos = (2, 20 - len(enchum))
                                     self.lcd_display.write_string(enchum)
-                                    curr_t = self.reactor.monotonic()
-                                    p_status = self.print_stats.get_status(curr_t)
-                                    g_status = self.gcode_move.get_status(curr_t)
-                                    d_status = self.display_status.get_status(curr_t)
-                                    duration = p_status['print_duration']
-                                    prog =  d_status['progress']
-                                    spf = g_status['speed_factor']
-                                    if duration != None and prog != None and spf != None: 
-                                        total = duration / prog
-                                        seconds = int((total - duration) / spf)
-                                        hours = seconds // (60*60)
-                                        seconds %= (60*60)
-                                        minutes = seconds // 60
-                                        seconds %= 60
-                                        left = "%02i:%02i:%02i" % (hours, minutes, seconds)
-                                        self.lcd_display.cursor_pos = (3, 0)
-                                        self.lcd_display.write_string("Remaining: ")
-                                        self.lcd_display.cursor_pos = (3, 11)
-                                        self.lcd_display.write_string(chr(32) * (9 - len(left)))
-                                        self.lcd_display.cursor_pos = (3, 20 - len(left))
-                                        self.lcd_display.write_string(left)
-                                    
+                                    self.lcd_display.cursor_pos = (3, 0)
+                                    self.lcd_display.write_string(chr(32) * 20)
                                 else:
                                     self.lcd_display.cursor_pos = (0, 0)
                                     self.lcd_display.write_string(chr(32) * 20)
@@ -161,8 +137,11 @@ class ENCLOSURE:
                                 self.lcd_display.write_string("Temp: %d C   " % int(temperature))
                                 self.lcd_display.cursor_pos = (1, 0)
                                 self.lcd_display.write_string("Humidity: %d %% " % int(humidity))
-                except:
+
+                except RuntimeError:
                     continue
+                except Exception:
+                    continue  
         thread.start_new_thread(run, ())
 
 
