@@ -33,7 +33,8 @@ class ENCLOSURE:
         self.printer.register_event_handler('idle_timeout:printing', self.handle_printing)
         self.printer.register_event_handler('idle_timeout:ready', self.handle_not_printing)
         self.printer.register_event_handler('idle_timeout:idle', self.handle_not_printing)
-        
+
+
         try:
             if self.dht_sensor_type == "21":
                 self.dht_sensor = adafruit_dht.DHT21(self.dht_sensor_gpio)
@@ -41,7 +42,7 @@ class ENCLOSURE:
                 self.dht_sensor = adafruit_dht.DHT22(self.dht_sensor_gpio)
             else:
                 self.dht_sensor = adafruit_dht.DHT11(self.dht_sensor_gpio)
-        except Exception:
+        except:
             self.dht_sensor = None
             pass
 
@@ -49,7 +50,7 @@ class ENCLOSURE:
             GPIO.setwarnings(False)
             GPIO.setmode(GPIO.BCM)
             GPIO.setup(self.fan_relay_gpio, GPIO.OUT)
-        except Exception:
+        except:
             pass
 
         try:
@@ -73,7 +74,7 @@ class ENCLOSURE:
                     self.lcd_display.write_string(self.machine_name)
                     self.lcd_display.cursor_pos = (1, 0)
                     self.lcd_display.write_string("   Loading...   ")
-        except Exception:
+        except:
             self.lcd_display = None
             pass
 
@@ -158,11 +159,8 @@ class ENCLOSURE:
                                 self.lcd_display.write_string("Temp: %d C   " % int(temperature))
                                 self.lcd_display.cursor_pos = (1, 0)
                                 self.lcd_display.write_string("Humidity: %d %% " % int(humidity))
-
-                except RuntimeError:
+                except:
                     continue
-                except Exception:
-                    continue  
         thread.start_new_thread(run, ())
 
 
